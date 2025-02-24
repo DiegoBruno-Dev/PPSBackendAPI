@@ -1,12 +1,13 @@
-const express = require('express')
+const express = require('express');
 
-const router = express.Router()
+const router = express.Router();
 
 // Rutas
 // const sample = require("./sample");
+const Users = require("./Users");
 
-// Rutas de prueba
-// router.use("/sample", sample);
+router.use("/api/v1/users",Users);
+
 
 // Rutas por defecto
 router.get('*', (req, res) => {
@@ -14,6 +15,6 @@ router.get('*', (req, res) => {
     status: 404,
     msg: 'Endpoint Not Found'
   })
-})
+});
 
-module.exports = router
+module.exports = router;

@@ -1,17 +1,17 @@
 // Env
-require('dotenv').config()
-const env = process.env
+require("dotenv").config();
+const env = process.env;
 
-const express = require('express')
+const express = require("express");
 
-const app = express()
+const app = express();
 
 // Routes
-const routes = require('./routes/index.js')
+const routes = require("./routes/index.js");
 
-app.use('/', routes)
+app.use("/", routes);
 
-const port = parseInt(env.PORT) || 3000
+const port = parseInt(env.PORT) || 3000;
 app.listen(port, () => {
-  console.log('Server Open at ' + port)
-})
+  console.log("Server Open at " + port);
+});

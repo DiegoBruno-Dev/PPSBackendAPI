@@ -1,13 +1,12 @@
-const { Router } = require('express');
-const { getUsers, getUserById} = require('./../controllers/Users');
+const { Router } = require('express')
+const { getUsers, getUserById } = require('./../controllers/Users')
 
-const rutas = Router();
+const rutas = Router()
 
 // http://localhost:3000/api/v1/users
-rutas.get('/', getUsers);
+rutas.get('/', getUsers)
 
 // http://localhost:3000/api/v1/users/id
-rutas.get('/:id', getUserById);
+rutas.get('/:id', getUserById)
 
-
-module.exports = rutas;
+module.exports = rutas

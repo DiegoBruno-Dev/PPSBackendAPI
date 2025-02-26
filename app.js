@@ -1,17 +1,15 @@
-// Env
-require('dotenv').config()
-const env = process.env
-
 const express = require('express')
+const usersRoutes = require('./routes/Users')
+require('dotenv').config()
 
 const app = express()
+const PORT = process.env.PORT || 3000
 
-// Routes
-const routes = require('./routes/index.js')
+// Middleware para procesar JSON
+app.use(express.json())
 
-app.use('/', routes)
+app.use('/api/v1/users', usersRoutes)
 
-const port = parseInt(env.PORT) || 3000
-app.listen(port, () => {
-  console.log('Server Open at ' + port)
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`)
 })

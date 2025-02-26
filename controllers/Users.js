@@ -1,48 +1,124 @@
-const axios = require('axios')
 const { request, response } = require('express')
-const ResponseMessage = require('../models/ResponseMessage')
-const ErrorMessage = require('../models/ErrorMessage')
-const CustomStatusMessage = require('../models/CustomStatusMessage')
+const db = require('../db/database.js')
 
-const URL = process.env.MOCKAPI_URL
-
-// Función para obtener todos los usuarios
+// Obtener todos los usuarios
 const getUsers = (req = request, res = response) => {
-  axios.get(URL)
-    .then((apiResponse) => {
-      const { data = [] } = apiResponse
-      res.status(200).json(ResponseMessage.from(data, 200))
-    })
-    .catch((error) => {
-      console.error(error)
-      res.status(400).json(ErrorMessage.from(error, 400))
-    })
+  db.all('SELECT * FROM users', (err, rows) => {
+    if (err) {
+      console.error('Error al obtener usuarios:', err.message)
+      return res.status(500).json({ error: 'Error interno del servidor' })
+    }
+    res.status(200).json({ status: 200, data: rows })
+  })
 }
 
-// Función para obtener un usuario por id
-
+// Obtener usuario por ID
 const getUserById = (req = request, res = response) => {
   const { id } = req.params
 
-  if (!id) {
-    return res.status(400).json(ErrorMessage.from(CustomStatusMessage.from(400, 'El id es requerido'), 400))
+  db.get('SELECT * FROM users WHERE id = ?', [id], (err, row) => {
+    if (err) {
+      console.error('Error al obtener usuario:', err.message)
+      return res.status(500).json({ error: 'Error interno del servidor' })
+    }
+    if (!row) {
+      return res.status(404).json({ error: 'Usuario no encontrado' })
+    }
+    res.status(200).json({ status: 200, data: row })
+  })
+}
+
+// Buscar usuarios por país o género
+const searchUsers = (req = request, res = response) => {
+  const { country, gender } = req.query
+
+  let query = 'SELECT * FROM users WHERE 1=1'
+  const params = []
+
+  if (country) {
+    query += ' AND LOWER(country) = LOWER(?)'
+    params.push(country)
+  }
+  if (gender) {
+    query += ' AND LOWER(gender) = LOWER(?)'
+    params.push(gender)
   }
 
-  axios.get(`${URL}/${id}`)
-    .then((apiResponse) => {
-      const { data } = apiResponse
-      if (!data) {
-        return res.status(400).json(ErrorMessage.from(CustomStatusMessage.from(400, 'El id no existe'), 400))
+  db.all(query, params, (err, rows) => {
+    if (err) {
+      console.error('Error en la búsqueda de usuarios:', err.message)
+      return res.status(500).json({ error: 'Error interno del servidor' })
+    }
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'No se encontraron usuarios con esos criterios' })
+    }
+    res.status(200).json({ status: 200, data: rows })
+  })
+}
+
+// Crear un usuario
+const createUser = (req = request, res = response) => {
+  const { name, gender, country, address, email, numberPhone } = req.body
+
+  if (!name || !gender || !country) {
+    return res.status(400).json({ error: 'Los campos name, gender y country son obligatorios' })
+  }
+
+  db.run(
+    'INSERT INTO users (name, gender, country, address, email, numberPhone) VALUES (?, ?, ?, ?, ?, ?)',
+    [name, gender, country, address, email, numberPhone],
+    function (err) {
+      if (err) {
+        console.error('Error al insertar usuario:', err.message)
+        return res.status(500).json({ error: 'Error interno del servidor' })
       }
-      res.status(200).json(ResponseMessage.from(data, 200))
-    })
-    .catch((error) => {
-      console.error(error)
-      res.status(400).json(ErrorMessage.from(error, 400))
-    })
+      res.status(201).json({ status: 201, message: 'Usuario creado', userId: this.lastID })
+    }
+  )
+}
+
+// Actualizar usuario por ID
+const updateUser = (req = request, res = response) => {
+  const { id } = req.params
+  const { name, gender, country, address, email, numberPhone } = req.body
+
+  db.run(
+    'UPDATE users SET name = ?, gender = ?, country = ?, address = ?, email = ?, numberPhone = ? WHERE id = ?',
+    [name, gender, country, address, email, numberPhone, id],
+    function (err) {
+      if (err) {
+        console.error('Error al actualizar usuario:', err.message)
+        return res.status(500).json({ error: 'Error interno del servidor' })
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado' })
+      }
+      res.status(200).json({ status: 200, message: 'Usuario actualizado' })
+    }
+  )
+}
+
+// Eliminar usuario por ID
+const deleteUser = (req = request, res = response) => {
+  const { id } = req.params
+
+  db.run('DELETE FROM users WHERE id = ?', [id], function (err) {
+    if (err) {
+      console.error('Error al eliminar usuario:', err.message)
+      return res.status(500).json({ error: 'Error interno del servidor' })
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' })
+    }
+    res.status(200).json({ status: 200, message: 'Usuario eliminado' })
+  })
 }
 
 module.exports = {
   getUsers,
-  getUserById
+  getUserById,
+  searchUsers, // Agregamos la nueva función
+  createUser,
+  updateUser,
+  deleteUser
 }

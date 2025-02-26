@@ -5,7 +5,6 @@ require('dotenv').config()
 const app = express()
 const PORT = process.env.PORT || 3000
 
-// Middleware para procesar JSON
 app.use(express.json())
 
 app.use('/api/v1/users', usersRoutes)

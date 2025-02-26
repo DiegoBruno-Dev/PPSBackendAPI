@@ -2,7 +2,7 @@ const sqlite3 = require('sqlite3').verbose()
 const path = require('path')
 const fs = require('fs')
 
-// Ruta donde se guardará la base de datos
+// Ruta donde se guarda la base de datos
 const dbPath = path.resolve(__dirname, 'users.db')
 
 // Verifica si la carpeta existe, si no, la crea

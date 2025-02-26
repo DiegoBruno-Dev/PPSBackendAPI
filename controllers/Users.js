@@ -117,7 +117,7 @@ const deleteUser = (req = request, res = response) => {
 module.exports = {
   getUsers,
   getUserById,
-  searchUsers, // Agregamos la nueva función
+  searchUsers,
   createUser,
   updateUser,
   deleteUser

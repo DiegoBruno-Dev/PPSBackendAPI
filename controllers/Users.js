@@ -30,31 +30,40 @@ const getUserById = (req = request, res = response) => {
 
 // Buscar usuarios por país o género
 const searchUsers = (req = request, res = response) => {
-  const { country, gender } = req.query
+  const { country, gender } = req.query;
 
-  let query = 'SELECT * FROM users WHERE 1=1'
-  const params = []
+  console.log('Parámetro de género recibido: ', gender); 
+  let query = 'SELECT * FROM users WHERE 1=1';
+  const params = [];
 
   if (country) {
-    query += ' AND LOWER(country) = LOWER(?)'
-    params.push(country)
+    query += ' AND LOWER(country) = LOWER(?)';
+    params.push(country);
   }
+
   if (gender) {
-    query += ' AND LOWER(gender) = LOWER(?)'
-    params.push(gender)
+    const normalizedGender = gender.toLowerCase();
+    if (normalizedGender !== 'male' && normalizedGender !== 'female') {
+      return res.status(400).json({ error: 'Género no válido' });
+    }
+    query += ' AND LOWER(gender) = LOWER(?)';
+    params.push(normalizedGender);
   }
 
   db.all(query, params, (err, rows) => {
     if (err) {
-      console.error('Error en la búsqueda de usuarios:', err.message)
-      return res.status(500).json({ error: 'Error interno del servidor' })
+      console.error('Error en la búsqueda de usuarios:', err.message);
+      return res.status(500).json({ error: 'Error interno del servidor' });
     }
+
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'No se encontraron usuarios con esos criterios' })
+      return res.status(404).json({ error: 'No se encontraron usuarios con esos criterios' });
     }
-    res.status(200).json({ status: 200, data: rows })
-  })
-}
+
+    res.status(200).json({ status: 200, data: rows });
+  });
+};
+
 
 // Crear un usuario
 const createUser = (req = request, res = response) => {

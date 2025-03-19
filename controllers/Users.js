@@ -67,44 +67,49 @@ const searchUsers = (req = request, res = response) => {
 
 // Crear un usuario
 const createUser = (req = request, res = response) => {
-  const { name, gender, country, address, email, numberPhone } = req.body
+  let { name, gender, country, address, email, numberPhone } = req.body;
 
   if (!name || !gender || !country) {
-    return res.status(400).json({ error: 'Los campos name, gender y country son obligatorios' })
+    return res.status(400).json({ error: 'Los campos name, gender y country son obligatorios' });
   }
+
+  gender = gender.toLowerCase() === 'masculino' ? 'male' : 'female';
 
   db.run(
     'INSERT INTO users (name, gender, country, address, email, numberPhone) VALUES (?, ?, ?, ?, ?, ?)',
     [name, gender, country, address, email, numberPhone],
     function (err) {
       if (err) {
-        console.error('Error al insertar usuario:', err.message)
-        return res.status(500).json({ error: 'Error interno del servidor' })
+        console.error('Error al insertar usuario:', err.message);
+        return res.status(500).json({ error: 'Error interno del servidor' });
       }
-      res.status(201).json({ status: 201, message: 'Usuario creado', userId: this.lastID })
+      res.status(201).json({ status: 201, message: 'Usuario creado', userId: this.lastID });
     }
-  )
+  );
 }
 
 // Actualizar usuario por ID
 const updateUser = (req = request, res = response) => {
-  const { id } = req.params
-  const { name, gender, country, address, email, numberPhone } = req.body
+  let { name, gender, country, address, email, numberPhone } = req.body;
+  const { id } = req.params;
+
+  // Normalizar el género
+  gender = gender.toLowerCase() === 'masculino' ? 'male' : 'female';
 
   db.run(
     'UPDATE users SET name = ?, gender = ?, country = ?, address = ?, email = ?, numberPhone = ? WHERE id = ?',
     [name, gender, country, address, email, numberPhone, id],
     function (err) {
       if (err) {
-        console.error('Error al actualizar usuario:', err.message)
-        return res.status(500).json({ error: 'Error interno del servidor' })
+        console.error('Error al actualizar usuario:', err.message);
+        return res.status(500).json({ error: 'Error interno del servidor' });
       }
       if (this.changes === 0) {
-        return res.status(404).json({ error: 'Usuario no encontrado' })
+        return res.status(404).json({ error: 'Usuario no encontrado' });
       }
-      res.status(200).json({ status: 200, message: 'Usuario actualizado' })
+      res.status(200).json({ status: 200, message: 'Usuario actualizado' });
     }
-  )
+  );
 }
 
 // Eliminar usuario por ID

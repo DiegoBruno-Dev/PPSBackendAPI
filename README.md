@@ -17,7 +17,7 @@ Estos pasos se deben realizar si se desea probar el proyecto de manera local, el
 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/DiegoXeneize/PPSBackendAPI.git
+git clone https://github.com/DiegoBruno-Dev/PPSBackendAPI.git
 ```
 
 2. Instalar las dependencias

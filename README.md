@@ -34,6 +34,8 @@ npm run start
 
 El servidor se ejecutará en http://localhost:3000 por defecto.
 
+Pero para los testeos es recomendable usar el link de render donde está subido el proyecto `https://ppsbackendapi.onrender.com`
+
 ## Endpoints disponibles
 
 ### Obtener todos los usuarios
